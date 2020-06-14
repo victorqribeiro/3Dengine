@@ -30,6 +30,8 @@ class ShaderProgram {
         gl.uniform3f(resolution, w, h, 0.0)
         const mouse = gl.getUniformLocation(this.shaderProgram, 'iMouse')
         gl.uniform2f(mouse, mousePos.x, mousePos.y)
+        const time = gl.getUniformLocation(this.shaderProgram, 'iTime')
+        gl.uniform1f(time, iTime)
     }
 
     stop(){

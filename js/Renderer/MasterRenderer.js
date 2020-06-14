@@ -38,8 +38,8 @@ class MasterRenderer {
     this.terrainRenderer.render(this.terrains)
     this.terrainShader.stop()
 
-    this.terrains = []
-    this.entities = {}
+    //this.terrains = []
+    //this.entities = {}
   }
 
   static enableCulling(){
@@ -89,6 +89,10 @@ class MasterRenderer {
       this.shader.start()
       this.shader.loadProjectionMatrix(this.projectionMatrix)
       this.shader.stop()
+      if(this.entityRenderer)
+        this.entityRenderer.projectionMatrix = new EntityRenderer(this.shader, this.projectionMatrix)
+      if(this.terrainRenderer)
+        this.terrainRenderer = new TerrainRenderer(this.terrainShader, this.projectionMatrix)
   }
 
   cleanUp(){
