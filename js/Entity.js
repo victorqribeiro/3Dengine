@@ -1,10 +1,11 @@
 class Entity {
 
-    constructor(texturedModel, position, rotation, scale){
+    constructor(texturedModel, position, rotation, scale, hideIfOutOfFOV = true){
         this.texturedModel = texturedModel
         this.position = position
         this.rotation = rotation
         this.scale = scale
+        this.hideIfOutOfFOV = hideIfOutOfFOV
     }
 
     increasePosition(dx, dy, dz){

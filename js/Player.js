@@ -1,15 +1,18 @@
 class Player extends Entity {
 
-  constructor(texturedModel, position, rotation, scale){
-    super(texturedModel, position, rotation, scale)
+  constructor(texturedModel, position, rotation, scale, hideIfOutOfFOV){
+    super(texturedModel, position, rotation, scale, hideIfOutOfFOV)
     this.RUN_SPEED = 20
     this.TURN_SPEED = 160
     this.GRAVITY = -50
     this.JUMP_POWER = 30
     this.jumpSpeed = 0
+    this.isJumping = false
   }
 
-  move(){
+  move(terrain){
+  
+    const terrainHeight = terrain.getHeightOfTerrain(this.position.x, this.position.z)
 
     if(keys[87]){
 
@@ -17,10 +20,10 @@ class Player extends Entity {
       const speed = this.RUN_SPEED * delta
       const futurePosX = Math.sin(a) * speed
       const futurePosZ = Math.cos(a) * speed
-      if(this.isValidLocation(futurePosX, futurePosZ)){
+      //if(this.isValidLocation(futurePosX, futurePosZ)){
           this.position.x += futurePosX
           this.position.z += futurePosZ
-      }
+      //}
     }else if(keys[83]){
       const a = glMatrix.toRadian(this.rotation.y)
       const speed = this.RUN_SPEED * delta
@@ -34,15 +37,18 @@ class Player extends Entity {
       this.rotation.y -= this.TURN_SPEED * delta
     }
 
-    if(keys[32] && this.position.y == 0){
+    if(keys[32] && !this.isJumping){
       this.jumpSpeed = this.JUMP_POWER
+      this.isJumping = true
     }
 
     this.jumpSpeed += this.GRAVITY * delta
     this.position.y += this.jumpSpeed * delta
-    if(this.position.y <= 0){
+    
+    if(this.position.y <= terrainHeight){
       this.jumpSpeed = 0
-      this.position.y = 0
+      this.position.y = terrainHeight
+      this.isJumping = false
     }
 
 

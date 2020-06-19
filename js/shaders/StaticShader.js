@@ -20,6 +20,11 @@ class StaticShader extends ShaderProgram {
         this.location_reflectivity = super.getUniformLocation("reflectivity")
         this.location_useFakeLight = super.getUniformLocation("useFakeLight")
         this.location_skyColor = super.getUniformLocation("skyColor")
+        this.location_affectedByWind = super.getUniformLocation("affectedByWind")
+    }
+    
+    loadAffectedByWind(affectedByWind){
+        gl.uniform1i(this.location_affectedByWind, affectedByWind)
     }
 
     loadSkyColor(skyColor){

@@ -2,16 +2,18 @@ let canvas, gl, w, h, masterRenderer, camera, light, modelTexture, loader, entit
 
 let keys
 
-let img
+let img, sky
 
 let wheel, leftClick, rightClick, middleClick, mousePos, mouseDeltaPos
 
 let lastFrameTime, delta, player
 
+let satusDiv
+
 const getImageData = async imgSrc => {
     return new Promise( (resolve,reject) => {
         let img = new Image()
-        img.src = "models/textures/blendMap.png"
+        img.src = imgSrc
         img.onload = () => {
             const tmp = document.createElement('canvas')
             tmp.width = img.width
@@ -27,6 +29,10 @@ const getImageData = async imgSrc => {
 }
 
 const init = async () => {
+    statusDiv = document.createElement('div')
+    statusDiv.style.position = "absolute"
+    statusDiv.style.top = 0
+    statusDiv.style.left = 0
     leftClick = false
     rightClick = false
     middleClick = false
@@ -41,6 +47,7 @@ const init = async () => {
     canvas.width = w = innerWidth
     canvas.height = h = innerHeight
     document.body.appendChild( canvas )
+    document.body.appendChild( statusDiv )
     gl = canvas.getContext('webgl2')
 
     const shader = new StaticShader()
@@ -59,7 +66,8 @@ const init = async () => {
       playerTextured,
       {x: 390, y:0, z:630},
       {x: 0, y:150, z:0},
-      {x: 1, y: 1, z: 1}
+      {x: 1, y: 1, z: 1},
+      false
     )
 
     camera = new Camera(
@@ -73,56 +81,7 @@ const init = async () => {
         {r: 1.0, g: 1.0, b: 1.0}
     )
 
-    const model = await OBJLoader.loadObjModel('stall')
-    modelTexture = new ModelTexture( await loader.loadTexture('stallTexture.png') )
-    const texturedModel = new TexturedModel(model, modelTexture)
-
-    const grass = await OBJLoader.loadObjModel('tree')
-    const gt = new ModelTexture( await loader.loadTexture('tree.png'), false, false )
-    grassTextured = new TexturedModel(grass, gt)
-    
-    img = await getImageData('models/textures/blendMap.png')
-    
-    grassArray = []
-    for(let i = 0; i < img.height; i++){
-        for(let j = 0; j < img.width; j++){
-            const index = (i*img.width+j)*4
-            const r = img.data[index]
-            const g = img.data[index+1]
-            const b = img.data[index+2]
-            const a = img.data[index+3]
-            if( r == 0 && g == 0 && b == 0 && Math.random() < 0.01 ){
-                const s = Math.random() * 2 + 3
-                grassArray.push(
-                        new Entity(
-                            grassTextured,
-                            {x: j * (800 / img.width) , y:0, z: i * (800/ img.height)},
-                            {x:0, y: Math.random() * 360, z:0},
-                            {x: s, y: s, z: s}
-                        )
-                )
-            }
-                
-        }
-    
-    }
-    
-    entities = [
-    new Entity(
-        texturedModel,
-        {x:380, y:0, z:250},
-        {x:0, y:180, z:0},
-        {x:1, y:1, z:1}
-      ),
-      new Entity(
-        texturedModel,
-        {x:410, y:0, z:250},
-        {x:0, y:130, z:0},
-        {x:1, y:1, z:1}
-      )
-    ]
-
-
+    const heightMap = await getImageData("models/textures/heightMap.png")
 
     const backgroundTexture = new TerrainTexture( (await loader.loadTexture('grass.png')).texture )
     const rTexture = new TerrainTexture( (await loader.loadTexture('mud.png')).texture )
@@ -141,9 +100,72 @@ const init = async () => {
 
     for(let i = 0; i < 1; i++){
         for(let j = 0; j < 1; j++){
-            terrains.push(new Terrain(i, j, loader, texturePack, blendMap))
+            terrains.push(new Terrain(i, j, loader, texturePack, blendMap, heightMap))
         }
     }
+
+
+    const grass = await OBJLoader.loadObjModel('pine')
+    const gt = new ModelTexture( await loader.loadTexture('pine.png'), true, true )
+    grassTextured = new TexturedModel(grass, gt, true)
+    
+    img = await getImageData('models/textures/blendMap.png')
+    
+    grassArray = []
+    
+    for(let i = 0; i < img.height; i++){
+        for(let j = 0; j < img.width; j++){
+            const index = (i*img.width+j)*4
+            const r = img.data[index]
+            const g = img.data[index+1]
+            const b = img.data[index+2]
+            const a = img.data[index+3]
+            if( r == 0 && g == 0 && b == 0 && Math.random() < 0.01 ){
+                const s = Math.random() * 1 + 1
+                const x = j * (800 / img.width) 
+                const z = i * (800/ img.height)
+                grassArray.push(
+                        new Entity(
+                            grassTextured,
+                            {x: x, y: terrains[0].getHeightOfTerrain(x, z) , z: z},
+                            {x:0, y: Math.random() * 360, z:0},
+                            {x: s, y: s, z: s}
+                        )
+                )
+            }
+                
+        }
+    
+    }
+    
+    /*
+    grassArray.push(
+        new Entity(
+            grassTextured,
+            {x: 440, y: terrains[0].getHeightOfTerrain(440, 600) , z: 600},
+            {x:0, y: 0, z:0},
+            {x: 1, y: 1, z: 1}
+        )
+    )
+    */
+    const model = await OBJLoader.loadObjModel('stall')
+    modelTexture = new ModelTexture( await loader.loadTexture('stallTexture.png') )
+    const texturedModel = new TexturedModel(model, modelTexture)
+
+    entities = [
+    new Entity(
+        texturedModel,
+        {x:380, y: terrains[0].getHeightOfTerrain(380, 250), z:250},
+        {x:0, y:180, z:0},
+        {x:1, y:1, z:1}
+      ),
+      new Entity(
+        texturedModel,
+        {x:410, y: terrains[0].getHeightOfTerrain(410, 250), z:250},
+        {x:0, y:130, z:0},
+        {x:1, y:1, z:1}
+      )
+    ]
 
     masterRenderer = new MasterRenderer(shader, terrainShader)
 
@@ -151,13 +173,20 @@ const init = async () => {
         masterRenderer.processTerrain(terrains[i])
 
 
-    for(let i = 0; i < entities.length; i++)
-      masterRenderer.processEntity(entities[i])
+    /*
+    const sphere = await OBJLoader.loadObjModel('sphere')
+    const sphereTexture = new ModelTexture( await loader.loadTexture('sky_sphere2.jpg'), true, true )
+    const sphereTextured = new TexturedModel(sphere, sphereTexture)
+    
+    globe = new Entity(
+        sphereTextured,
+        {x: camera.position.x, y: camera.position.y, z: camera.position.z},
+        {x: 0, y: 0, z: 0},
+        {x: 350, y: 350, z: 350},
+        false
+    )
+    */
 
-    masterRenderer.processEntity( player )
-
-    for(let i = 0; i< grassArray.length; i++)
-        masterRenderer.processEntity( grassArray[i] )
 
 
 
@@ -177,9 +206,23 @@ const loop = (time) => {
     
     iTime = time
     camera.move()
-    player.move()
+    player.move(terrains[0])
+    
+    for(let i = 0; i < entities.length; i++)
+      masterRenderer.processEntity(entities[i])
+
+    masterRenderer.processEntity( player )
+    
+    //masterRenderer.processEntity( globe )
+    
+    for(let i = 0; i< grassArray.length; i++)
+        masterRenderer.processEntity( grassArray[i] )
+    
 
 
+
+
+    
 
 
     masterRenderer.render(light, camera)

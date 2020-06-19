@@ -39,7 +39,7 @@ class MasterRenderer {
     this.terrainShader.stop()
 
     //this.terrains = []
-    //this.entities = {}
+    this.entities = {}
   }
 
   static enableCulling(){
@@ -56,6 +56,18 @@ class MasterRenderer {
   }
 
   processEntity(entity){
+    if(entity.hideIfOutOfFOV){
+        const a = {z: entity.position.z - camera.position.z, x: entity.position.x - camera.position.x}
+        const lenA = Math.sqrt( a.x*a.x + a.z*a.z )
+        a.x /= lenA
+        a.z /= lenA
+        const b = {z: player.position.z - camera.position.z, x: player.position.x - camera.position.x}
+        const lenB = Math.sqrt( b.x*b.x + b.z*b.z )
+        b.x /= lenB
+        b.z /= lenB
+        if(a.z * b.z + a.x * b.x <= 0.7)
+            return
+    }
     const index = entity.texturedModel.modelTexture.id
     if(this.entities[index]){
       this.entities[index].push(entity)

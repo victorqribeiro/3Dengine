@@ -14,6 +14,7 @@ uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform vec3 lightPosition;
 uniform int useFakeLight;
+uniform int affectedByWind;
 
 uniform float iTime;
 
@@ -21,8 +22,11 @@ const float density = 0.005;
 const float gradient = 1.5;
 
 void main(void){
-    //float y = mix(sin(iTime * 0.01) * 0.1 + position.y, position.y, position.y);
-    vec4 worldPosition = transformationMatrix * vec4(position.x, position.y, position.z, 1.0);
+    float x = position.x;
+    if(affectedByWind == 1){
+        x = mix(position.x, position.x + sin(iTime * 0.001) * 0.01, position.y);
+    }
+    vec4 worldPosition = transformationMatrix * vec4(x, position.y, position.z, 1.0);
     vec4 positionRelativeToCamera = viewMatrix * worldPosition;
     gl_Position = projectionMatrix * positionRelativeToCamera;
     pass_textureCoords = textureCoords;

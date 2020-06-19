@@ -27,6 +27,7 @@ class EntityRenderer {
       }
       this.shader.loadFakeLightVariable(entity.texturedModel.modelTexture.useFakeLight)
       this.shader.loadShineVariables(entity.texturedModel.modelTexture.shineDamper, entity.texturedModel.modelTexture.reflectivity)
+      this.shader.loadAffectedByWind(entity.texturedModel.affectedByWind)
       gl.activeTexture(gl.TEXTURE0)
       gl.bindTexture(gl.TEXTURE_2D, entity.texturedModel.modelTexture.texture)
     }
