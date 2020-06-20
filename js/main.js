@@ -64,15 +64,15 @@ const init = async () => {
 
     player = new Player(
       playerTextured,
-      {x: 390, y:0, z:630},
-      {x: 0, y:150, z:0},
+      {x: 390, y:0, z:190},
+      {x: 0, y:0, z:0},
       {x: 1, y: 1, z: 1},
       false
     )
 
     camera = new Camera(
         player,
-        {x: 390, y:5, z:630},
+        {x: 390, y:5, z:150},
         {x: 17, y:0, z:0}
     )
 
@@ -148,26 +148,37 @@ const init = async () => {
         )
     )
     */
-    const model = await OBJLoader.loadObjModel('stall')
-    modelTexture = new ModelTexture( await loader.loadTexture('stallTexture.png') )
+    const model = await OBJLoader.loadObjModel('tower')
+    modelTexture = new ModelTexture( await loader.loadTexture('Tower.png'), true, true )
     const texturedModel = new TexturedModel(model, modelTexture)
 
     entities = [
     new Entity(
         texturedModel,
-        {x:380, y: terrains[0].getHeightOfTerrain(380, 250), z:250},
+        {x:380, y: terrains[0].getHeightOfTerrain(380, 250), z:200},
         {x:0, y:180, z:0},
-        {x:1, y:1, z:1}
-      ),
-      new Entity(
-        texturedModel,
-        {x:410, y: terrains[0].getHeightOfTerrain(410, 250), z:250},
-        {x:0, y:130, z:0},
         {x:1, y:1, z:1}
       )
     ]
 
-    masterRenderer = new MasterRenderer(shader, terrainShader)
+    const skymap1 = ["right.png", "left.png", "top.png", "bottom.png", "back.png", "front.png"]
+    const skyColor1 = {r: 0.612, g: 0.686, b: 0.745}
+
+    const skymap2 = [
+        "TropicalSunnyDay_nx.jpg",
+        "TropicalSunnyDay_px.jpg", 
+        "TropicalSunnyDay_py.jpg", 
+        "TropicalSunnyDay_ny.jpg", 
+        "TropicalSunnyDay_nz.jpg", 
+        "TropicalSunnyDay_pz.jpg"
+    ]
+    const skyColor2 = {r: 0.984, g: 0.988, b: 0.969}
+
+    const skyboxTexture = await loader.loadCubeMap(skymap2)
+    const skyboxShader = new SkyboxShader()
+    await skyboxShader.init()
+    
+    masterRenderer = new MasterRenderer(shader, terrainShader, skyColor1, skyboxTexture, skyboxShader)
 
     for(let i = 0; i < terrains.length; i++)
         masterRenderer.processTerrain(terrains[i])
@@ -218,12 +229,6 @@ const loop = (time) => {
     for(let i = 0; i< grassArray.length; i++)
         masterRenderer.processEntity( grassArray[i] )
     
-
-
-
-
-    
-
 
     masterRenderer.render(light, camera)
 

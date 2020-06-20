@@ -1,6 +1,6 @@
 #version 300 es
 
-precision highp float;
+precision mediump float;
 
 in vec2 pass_textureCoords;
 in vec3 surfaceNormal;

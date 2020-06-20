@@ -17,7 +17,7 @@ class Camera {
 
       if(rightClick)
         this.rotation.x += mouseDeltaPos.y * 0.3
-      this.rotation.x = Math.max(Math.min(this.rotation.x, 50), 10)
+      this.rotation.x = Math.max(Math.min(this.rotation.x, 50), 1)
 
 
       if(rightClick)

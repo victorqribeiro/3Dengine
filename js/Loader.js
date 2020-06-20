@@ -15,6 +15,14 @@ class Loader {
         return new RawModel(vaoID, indices.length)
     }
 
+    loadToVAOsimple(position, dimensions){
+        const vaoID = gl.createVertexArray()
+        gl.bindVertexArray(vaoID)
+        this.storeDataInAttributeList(0, dimensions, position)
+        gl.bindVertexArray(null)
+        return new RawModel(vaoID, position.length / dimensions)
+    }
+
     storeDataInAttributeList(attributeNumber, size, data){
         const vboID = gl.createBuffer()
         gl.bindBuffer(gl.ARRAY_BUFFER, vboID)
@@ -36,6 +44,24 @@ class Loader {
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(data), gl.STATIC_DRAW)
     }
 
+    async loadCubeMap(textures){
+        const texture = gl.createTexture()
+        gl.activeTexture(gl.TEXTURE0)
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture)
+        for(let i = 0; i < textures.length; i++){
+            const img = await new Promise( (resolve,reject) => { 
+                const image = new Image()
+                image.src = `models/textures/${textures[i]}`
+                image.onload = () => resolve(image)
+                image.onerror = () => reject("erro")
+            })
+            gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img)
+        }
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+        gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+        return texture
+    }
+
     async loadTexture(imagePath){
         return new Promise((resolve, reject) => {
             const img = new Image()
@@ -49,8 +75,8 @@ class Loader {
                 }else{
                     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
                     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
                 }
                 resolve({'id': ++this.textures, 'texture': texture})
             }

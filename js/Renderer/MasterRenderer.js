@@ -1,17 +1,13 @@
 class MasterRenderer {
 
-  constructor(shader, terrainShader){
+  constructor(shader, terrainShader, skyColor, skyboxTexture, skyboxShader){
     this.shader = shader
     this.terrainShader = terrainShader
     this.entities = {}
     this.FOV = 70
     this.NEAR_PLANE = 0.1
     this.FAR_PLANE = 1000
-    this.skyColor = {
-        r: 0.52,
-        g: 0.8,
-        b: 0.92
-    }
+    this.skyColor = skyColor
     gl.enable(gl.CULL_FACE)
     gl.cullFace(gl.BACK)
     gl.enable(gl.DEPTH_TEST)
@@ -19,6 +15,7 @@ class MasterRenderer {
     this.updateProjection()
     this.entityRenderer = new EntityRenderer(this.shader, this.projectionMatrix)
     this.terrainRenderer = new TerrainRenderer(this.terrainShader, this.projectionMatrix)
+    this.skyboxRenderer = new SkyboxRenderer(skyboxTexture, skyboxShader, this.projectionMatrix, this.skyColor)
     this.terrains = []
   }
 
@@ -37,6 +34,8 @@ class MasterRenderer {
     this.terrainShader.loadViewMatrix(camera)
     this.terrainRenderer.render(this.terrains)
     this.terrainShader.stop()
+
+    this.skyboxRenderer.render(camera)
 
     //this.terrains = []
     this.entities = {}
@@ -65,7 +64,7 @@ class MasterRenderer {
         const lenB = Math.sqrt( b.x*b.x + b.z*b.z )
         b.x /= lenB
         b.z /= lenB
-        if(a.z * b.z + a.x * b.x <= 0.7)
+        if(a.z * b.z + a.x * b.x <= 0.5)
             return
     }
     const index = entity.texturedModel.modelTexture.id
@@ -105,6 +104,9 @@ class MasterRenderer {
         this.entityRenderer.projectionMatrix = new EntityRenderer(this.shader, this.projectionMatrix)
       if(this.terrainRenderer)
         this.terrainRenderer = new TerrainRenderer(this.terrainShader, this.projectionMatrix)
+      if(this.skyboxRenderer){
+        this.skyboxRenderer = new SkyboxRenderer(this.skyboxRenderer.texture, this.skyboxRenderer.shader, this.projectionMatrix, this.skyColor)
+      }
   }
 
   cleanUp(){
