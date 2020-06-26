@@ -29,6 +29,10 @@ const getImageData = async imgSrc => {
 }
 
 const init = async () => {
+    const loading = document.createElement('h2')
+    loading.innerText = "Loading..."
+    loading.style.position = "absolute"
+    document.body.appendChild( loading )
     statusDiv = document.createElement('div')
     statusDiv.style.position = "absolute"
     statusDiv.style.top = 0
@@ -106,7 +110,7 @@ const init = async () => {
 
 
     const grass = await OBJLoader.loadObjModel('pine')
-    const gt = new ModelTexture( await loader.loadTexture('pine.png'), false, true )
+    const gt = new ModelTexture( await loader.loadTexture('pine3.png'), false, true )
     grassTextured = new TexturedModel(grass, gt, true)
 
     const rock01 = await OBJLoader.loadObjModel('rock01')
@@ -228,12 +232,12 @@ const init = async () => {
     const skyColor1 = {r: 0.612, g: 0.686, b: 0.745}
 
     const skymap2 = [
-        "TropicalSunnyDay_nx.jpg",
         "TropicalSunnyDay_px.jpg",
+        "TropicalSunnyDay_nx.jpg",
         "TropicalSunnyDay_py.jpg",
         "TropicalSunnyDay_ny.jpg",
-        "TropicalSunnyDay_nz.jpg",
-        "TropicalSunnyDay_pz.jpg"
+        "TropicalSunnyDay_pz.jpg",
+        "TropicalSunnyDay_nz.jpg"
     ]
     const skyColor2 = {r: 0.984, g: 0.988, b: 0.969}
 
@@ -266,6 +270,7 @@ const init = async () => {
 
     requestAnimationFrame( loop )
     addEvents()
+    loading.remove()
 }
 
 

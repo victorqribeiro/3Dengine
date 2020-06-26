@@ -80,7 +80,7 @@ class Loader {
                 }
                 resolve({'id': ++this.textures, 'texture': texture})
             }
-            img.onerror = reject
+            img.onerror = () => reject("error")
             img.src = `models/textures/${imagePath}`
         })
     }
