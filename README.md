@@ -2,7 +2,7 @@
 
 My first attempt at a 3D engine using native JavaScript and WebGL.
 
-[![screenshot](screenshot.png)](https://victorribeiro.com/3Dengine)
+[![screenshot](screenshot.jpg)](https://victorribeiro.com/3Dengine)
 
 ## About
 
