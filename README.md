@@ -38,3 +38,7 @@ Click and hold the right button of the mouse to rotate te camera.
 Middle wheel zoom in and out.  
 W, a, s, d move the pirate girl.  
 Space bar jumps.
+
+## License
+
+As I Open Source this project you can make use of the code and the code alone. None of the 3D models or textures are mine, so I cannot give you permission for that. I have used them here with the purpose of learning along, no money was made with this project. I also don't know the creators of those files, that's why I don't link them here. If you are or know any of the creators, please let me know and I'll credit them here.
