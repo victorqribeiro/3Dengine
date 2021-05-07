@@ -31,3 +31,10 @@ Python 3
 ```bash
 python3 -m http.server 8080
 ```
+
+## How to play
+
+Click and hold the right button of the mouse to rotate te camera.  
+Middle wheel zoom in and out.  
+W, a, s, d move the pirate girl.  
+Space bar jumps.
