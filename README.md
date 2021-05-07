@@ -24,7 +24,7 @@ php -S 127.0.0.1:8080
 
 Python 2
 ```bash
-python -m SimpleHTTPServer 8000
+python -m SimpleHTTPServer 8080
 ```
 
 Python 3
