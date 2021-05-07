@@ -1,7 +1,8 @@
 class MasterRenderer {
 
-  constructor(shader, terrainShader, skyColor, skyboxTexture, skyboxShader){
+  constructor(shader, linesShader, terrainShader, skyColor, skyboxTexture, skyboxShader){
     this.shader = shader
+    this.linesShader = linesShader
     this.terrainShader = terrainShader
     this.entities = {}
     this.FOV = 70
@@ -14,8 +15,10 @@ class MasterRenderer {
     gl.depthFunc(gl.LEQUAL)
     this.updateProjection()
     this.entityRenderer = new EntityRenderer(this.shader, this.projectionMatrix)
+    this.linesRenderer = new LinesRenderer(this.linesShader, this.projectionMatrix)
     this.terrainRenderer = new TerrainRenderer(this.terrainShader, this.projectionMatrix)
     this.skyboxRenderer = new SkyboxRenderer(skyboxTexture, skyboxShader, this.projectionMatrix, this.skyColor)
+    this.lines = []
     this.terrains = []
   }
 
@@ -27,6 +30,11 @@ class MasterRenderer {
     this.shader.loadViewMatrix(camera)
     this.entityRenderer.render(this.entities)
     this.shader.stop()
+
+    this.linesShader.start()
+    this.linesShader.loadViewMatrix(camera)
+    this.linesRenderer.render(this.lines)
+    this.linesShader.stop()
 
     this.terrainShader.start()
     this.terrainShader.loadSkyColor(this.skyColor)
@@ -48,6 +56,10 @@ class MasterRenderer {
   
   static disableCulling(){
     gl.disable(gl.CULL_FACE)
+  }
+
+  processLines(linesObject){
+    this.lines.push(linesObject) 
   }
 
   processTerrain(terrain){
@@ -100,8 +112,13 @@ class MasterRenderer {
       this.shader.start()
       this.shader.loadProjectionMatrix(this.projectionMatrix)
       this.shader.stop()
+      this.linesShader.start()
+      this.linesShader.loadProjectionMatrix(this.projectionMatrix)
+      this.linesShader.stop()
       if(this.entityRenderer)
-        this.entityRenderer.projectionMatrix = new EntityRenderer(this.shader, this.projectionMatrix)
+        this.entityRenderer = new EntityRenderer(this.shader, this.projectionMatrix)
+      if(this.linesRenderer)
+        this.linesRenderer = new LinesRenderer(this.linesShader, this.projectionMatrix)
       if(this.terrainRenderer)
         this.terrainRenderer = new TerrainRenderer(this.terrainShader, this.projectionMatrix)
       if(this.skyboxRenderer){

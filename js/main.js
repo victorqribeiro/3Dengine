@@ -10,6 +10,8 @@ let lastFrameTime, delta, player
 
 let satusDiv
 
+let plane
+
 const getImageData = async imgSrc => {
     return new Promise( (resolve,reject) => {
         let img = new Image()
@@ -56,6 +58,9 @@ const init = async () => {
 
     const shader = new StaticShader()
     await shader.init()
+    
+    const linesShader = new LinesShader()
+    await linesShader.init()
 
     const terrainShader = new TerrainShader()
     await terrainShader.init()
@@ -107,8 +112,7 @@ const init = async () => {
             terrains.push(new Terrain(i, j, loader, texturePack, blendMap, heightMap))
         }
     }
-
-
+    
     const grass = await OBJLoader.loadObjModel('pine')
     const gt = new ModelTexture( await loader.loadTexture('pine3.png'), false, true )
     grassTextured = new TexturedModel(grass, gt, true)
@@ -126,7 +130,7 @@ const init = async () => {
     img = await getImageData('models/textures/blendMap.png')
 
     grassArray = []
-
+    
     for(let i = 0; i < img.height; i++){
         for(let j = 0; j < img.width; j++){
             const index = (i*img.width+j)*4
@@ -165,16 +169,6 @@ const init = async () => {
 
     }
 
-    /*
-    grassArray.push(
-        new Entity(
-            grassTextured,
-            {x: 440, y: terrains[0].getHeightOfTerrain(440, 600) , z: 600},
-            {x:0, y: 0, z:0},
-            {x: 1, y: 1, z: 1}
-        )
-    )
-    */
     const house01 = await OBJLoader.loadObjModel('house01')
     const house01Texture = new ModelTexture( await loader.loadTexture('House_01.png'), false, true )
     const house01Model = new TexturedModel(house01, house01Texture)
@@ -184,7 +178,7 @@ const init = async () => {
     const house02Model = new TexturedModel(house02, house02Texture)
 
     const house03 = await OBJLoader.loadObjModel('house03')
-    const house03Texture = new ModelTexture( await loader.loadTexture('House_03.png'), false, true )
+    const house03Texture = new ModelTexture( await loader.loadTexture('House_03.png'), true, true )
     const house03Model = new TexturedModel(house03, house03Texture)
 
     const tower = await OBJLoader.loadObjModel('tower')
@@ -227,7 +221,7 @@ const init = async () => {
             {x:1, y:1, z:1}
           )
     ]
-
+    
     const skymap1 = ["right.png", "left.png", "top.png", "bottom.png", "back.png", "front.png"]
     const skyColor1 = {r: 0.612, g: 0.686, b: 0.745}
 
@@ -245,29 +239,24 @@ const init = async () => {
     const skyboxShader = new SkyboxShader()
     await skyboxShader.init()
 
-    masterRenderer = new MasterRenderer(shader, terrainShader, skyColor1, skyboxTexture, skyboxShader)
+    masterRenderer = new MasterRenderer(shader, linesShader, terrainShader, skyColor1, skyboxTexture, skyboxShader)
 
     for(let i = 0; i < terrains.length; i++)
         masterRenderer.processTerrain(terrains[i])
 
-
     /*
-    const sphere = await OBJLoader.loadObjModel('sphere')
-    const sphereTexture = new ModelTexture( await loader.loadTexture('sky_sphere2.jpg'), true, true )
-    const sphereTextured = new TexturedModel(sphere, sphereTexture)
-
-    globe = new Entity(
-        sphereTextured,
-        {x: camera.position.x, y: camera.position.y, z: camera.position.z},
-        {x: 0, y: 0, z: 0},
-        {x: 350, y: 350, z: 350},
-        false
+    const playerBoundBox = new Entity(
+      plane,
+      player.position,
+      {x:0, y:0, z:0},
+      player.scale,
+      false
     )
+
+    masterRenderer.processLines(playerBoundBox)
     */
-
-
-
-
+    
+    
     requestAnimationFrame( loop )
     addEvents()
     loading.remove()
@@ -292,7 +281,6 @@ const loop = (time) => {
 
     masterRenderer.processEntity( player )
 
-    //masterRenderer.processEntity( globe )
 
     for(let i = 0; i< grassArray.length; i++)
         masterRenderer.processEntity( grassArray[i] )

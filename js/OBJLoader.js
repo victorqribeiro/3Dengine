@@ -1,6 +1,6 @@
 class OBJLoader {
 
-    static async loadObjModel(file, flip = true){
+    static async loadObjModel(file, flip = true, bbox = false){
 
         const request = await fetch(`models/${file}.obj`)
         let data = await request.text()
@@ -15,6 +15,13 @@ class OBJLoader {
         const finalNormals = []
         const finalIndices = []
 
+        let minX = Infinity
+        let minY = Infinity
+        let minZ = Infinity
+        let maxX = -Infinity
+        let maxY = -Infinity
+        let maxZ = -Infinity
+
         const cache = {}
         let index = 0
         let finalIndex = 0
@@ -28,7 +35,22 @@ class OBJLoader {
 
             switch(line[0]){
                 case "v":
-                        vertices.push(parseFloat(line[1]),parseFloat(line[2]),parseFloat(line[3]))
+                        const x = parseFloat(line[1])
+                        const y = parseFloat(line[2])
+                        const z = parseFloat(line[3])
+                        if( x < minX )
+                            minX = x
+                        if( x > maxX )
+                            maxX = x
+                        if( y < minY )
+                            minY = y
+                        if( y > maxY )
+                            maxY = y
+                        if( z < minZ )
+                            minZ = z
+                        if( z > maxZ )
+                            maxZ = z
+                        vertices.push(x,y,z)
                     break
                 case "vt":
                         uvs.push(parseFloat(line[1]),parseFloat(line[2]))
@@ -72,6 +94,56 @@ class OBJLoader {
 
         }
 
+        if(bbox){
+            const a = 0, cosA = Math.cos(a), sinA = Math.sin(a)
+            const minXcosA = minX * cosA
+            const maxXcosA = maxX * cosA
+            const minZcosA = minZ * cosA
+            const maxZcosA = maxZ * cosA
+            const minXsinA = minX * sinA
+            const maxXsinA = maxX * sinA
+            const minZsinA = minZ * sinA
+            const maxZsinA = maxZ * sinA
+            plane = loader.loadToVAOsimple([
+                minXcosA - minZsinA, minY, minZcosA + minXsinA,
+                minXcosA - minZsinA, maxY, minZcosA + minXsinA,
+                
+                maxXcosA - minZsinA, minY, minZcosA + maxXsinA,
+                maxXcosA - minZsinA, maxY, minZcosA + maxXsinA,
+                
+                minXcosA - maxZsinA, minY, maxZcosA + minXsinA,
+                minXcosA - maxZsinA, maxY, maxZcosA + minXsinA,
+                
+                maxXcosA - maxZsinA, minY, maxZcosA + maxXsinA,
+                maxXcosA - maxZsinA, maxY, maxZcosA + maxXsinA,
+                
+                maxXcosA - maxZsinA, maxY, maxZcosA + maxXsinA,
+                minXcosA - maxZsinA, maxY, maxZcosA + minXsinA,
+                
+                maxXcosA - maxZsinA, minY, maxZcosA + maxXsinA,
+                minXcosA - maxZsinA, minY, maxZcosA + minXsinA,
+                
+                maxXcosA - minZsinA, maxY, minZcosA + maxXsinA,
+                minXcosA - minZsinA, maxY, minZcosA + minXsinA,
+                
+                maxXcosA - minZsinA, minY, minZcosA + maxXsinA,
+                minXcosA - minZsinA, minY, minZcosA + minXsinA,
+                
+                minXcosA - minZsinA, minY, minZcosA + minXsinA,
+                minXcosA - maxZsinA, minY, maxZcosA + minXsinA,
+                
+                minXcosA - minZsinA, maxY, minZcosA + minXsinA,
+                minXcosA - maxZsinA, maxY, maxZcosA + minXsinA,
+                
+                maxXcosA - minZsinA, maxY, minZcosA + maxXsinA,
+                maxXcosA - maxZsinA, maxY, maxZcosA + maxXsinA,
+
+                maxXcosA - minZsinA, minY, minZcosA + maxXsinA,
+                maxXcosA - maxZsinA, minY, maxZcosA + maxXsinA 
+                
+        ], 3)
+        }
+        
         return loader.loadToVAO(finalVertices, finalUvs, finalNormals, finalIndices)
 
 	}

@@ -18,7 +18,7 @@ uniform int affectedByWind;
 
 uniform float iTime;
 
-const float density = 0.005;
+const float density = 0.0;
 const float gradient = 1.5;
 
 void main(void){

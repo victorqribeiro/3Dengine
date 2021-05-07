@@ -38,4 +38,7 @@ void main(void){
     out_color = diffuse * textureColor + vec4(finalSpecular, 1.0);
     out_color = mix(vec4(skyColor,1.0),out_color, visibility);
     //out_color *= vec4(uv.x, c, uv.y, 1.0);
+    
+    //float gray = out_color.r * 0.2126 + out_color.g * 0.7152 + out_color.b * 0.0722;
+    //out_color = vec4(gray, gray, gray, 1.0);
 }
